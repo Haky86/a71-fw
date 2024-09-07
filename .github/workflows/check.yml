@@ -44,8 +44,8 @@ jobs:
         node-version: 16
 
     - name: Install dependencies
-      if: steps.check.outputs.need_update == 1
-      run: sudo npm i -g samfirm
+      if: env.need_update == 1
+      run: sudo wget -O /usr/bin/samfirm https://github.com/DavidArsene/samfirm.js/releases/download/v0.3.0/samfirm.js && sudo chmod +x /usr/bin/samfirm
 
     - name: Fetch firmware
       if: steps.check.outputs.need_update == 1
@@ -67,12 +67,12 @@ jobs:
        tar tvf ${{ steps.files.outputs.cp }} || true
 
     - name: Remove unwanted files from AP and BL
-      if: steps.check.outputs.need_update == 1
+      if: env.need_update == 1
       run: |
-       tar vf ${{ steps.files.outputs.ap }} --delete boot.img.lz4 dtbo.img.lz4 recovery.img.lz4 super.img.lz4 userdata.img.lz4 vbmeta.img.lz4 vbmeta_system.img.lz4 meta-data
-       md5sum ${{ steps.files.outputs.ap }} | sed "s/  .*\//  /;s/\.md5$//" >> ${{ steps.files.outputs.ap }}
-       tar vf ${{ steps.files.outputs.bl }} --delete vbmeta.img.lz4
-       md5sum ${{ steps.files.outputs.bl }} | sed "s/  .*\//  /;s/\.md5$//" >> ${{ steps.files.outputs.bl }}
+       tar vf ${{ env.ap_tar }} --delete boot.img.lz4 dtbo.img.lz4 recovery.img.lz4 super.img.lz4 userdata.img.lz4 vbmeta.img.lz4 vbmeta_system.img.lz4 meta-data
+       md5sum ${{ env.ap_tar }} | sed "s/  .*\//  /;s/\.md5$//" >> ${{ env.ap_tar }}
+       tar vf ${{ env.bl_tar }} --delete vbmeta.img.lz4
+       md5sum ${{ env.bl_tar }} | sed "s/  .*\//  /;s/\.md5$//" >> ${{ env.bl_tar }}
 
     - name: Update current version
       if: steps.check.outputs.need_update == 1
